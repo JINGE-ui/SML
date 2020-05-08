@@ -1,12 +1,20 @@
+(*求无向图的割点与割边数目，Tarjan算法*)
+
 val n = getInt();
 val m = getInt();
-(*用邻接表实现边的存储，且舍弃0，从1开始计数*)
+(*用邻接矩阵实现边的存储，且舍弃0，从1开始计数*)
 val V = Array2.array(n+1,n+1,~1);
+(*dfn的值为对应点在DFS的访问顺序，即时间戳
+low为子节点不经过父节点能访问到的祖先节点中最小的时间戳
+割点判断：对于节点u，用U顶点的dfn值和它的所有的孩子顶点的low值进行比较，
+如果存在至少一个孩子顶点V满足low[v] >= dnf[u]，就说明顶点V访问顶点U的祖先顶点，必须通过顶点U，所以u是割点
+割边判断：对于(u,v)，若low[v]>dfn[u],则是割边*)
 val dfn = Array.array(n+1,~1);
 val low = Array.array(n+1,~1);
-val fa = Array.array(n+1,0);
+val fa = Array.array(n+1,0);(*父亲节点*)
 val iscut = Array.array(n+1,false);
 
+(*读入数据，储存到邻接矩阵*)
 fun readin _ = 
 let val u = getInt() and v = getInt()
 val t1 = Array2.update(V,u,v,1) and t2 = Array2.update(V,v,u,1)
@@ -15,6 +23,7 @@ List.tabulate(m,readin);
 
 val arr = Array.tabulate(n,fn x=>x+1);
 
+(*from表示父节点，以下函数进行dfs遍历，并更新dfn和low的值，注意无向图中要考虑指向父节点的情况*)
 fun tarjan(u:int,from:int,index:int) = 
 let val t1 = Array.update(dfn,u,index) and t2 = Array.update(low,u,index)
 and t3 = Array.update(fa,u,from);
